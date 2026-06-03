@@ -1,0 +1,63 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CREATOR
+  EVENTEE
+}
+enum TicketStatus {
+  VALID
+  SCANNED
+  CANCELLED
+  REFUNDED
+}
+
+// 1. Users Table
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(EVENTEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  events    Event[]  // Events this user has created
+  tickets   Ticket[] // Tickets this user has purchased
+}
+
+// 2. Events Table
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String
+  date        DateTime
+  capacity    Int
+  price       Int
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  creatorId   String
+  creator     User     @relation(fields: [creatorId], references: [id])
+  tickets     Ticket[] 
+}
+
+// 3. Tickets Table
+model Ticket {
+  id        String   @id @default(uuid())
+  status    TicketStatus @default(VALID)
+  createdAt DateTime @default(now())
+
+  // Relationships
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
