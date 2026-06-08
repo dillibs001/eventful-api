@@ -19,7 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 // Reject tokens that have expired
       ignoreExpiration: false,
-      // 3. Must perfectly match the key in your AuthModule!
+      //  Must perfectly match the key in your AuthModule!
       secretOrKey: configService.getOrThrow<string>('JWT_SECRET'), 
     });
   }

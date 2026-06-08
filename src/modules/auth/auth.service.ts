@@ -4,7 +4,16 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import {Role,User} from '@prisma/client';
 
+//what is needed from the database
+type tokenInput = Pick<User, 'id' | 'email' | 'role'>;
+
+export type JwtPayload = {
+  sub: string; 
+  email: string;
+  role: Role;
+}
 
 @Injectable()
 export class AuthService {
@@ -42,7 +51,7 @@ export class AuthService {
 
   // --- HELPER METHOD ---
   // We put this in a separate function so we don't repeat ourselves!
-  private async generateToken(user: any) {
+  private async generateToken(user: tokenInput) {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
       access_token: await this.jwtService.signAsync(payload),

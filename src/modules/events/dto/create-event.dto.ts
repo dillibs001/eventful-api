@@ -1,18 +1,41 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsDateString } from 'class-validator';
+import { 
+  IsNotEmpty, 
+  IsString, 
+  IsInt, 
+  Min, 
+  IsNumber, 
+  IsOptional, 
+  MaxLength, 
+  IsDateString 
+} from 'class-validator';
 
 export class CreateEventDto {
-  @ApiProperty({ example: 'Tech Conference 2026', description: 'The name of the event' })
+  @IsNotEmpty({ message: 'Event title is required' })
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(100, { message: 'Title cannot exceed 100 characters' })
   title!: string;
 
-  @ApiProperty({ example: 'A massive gathering of backend engineers.', description: 'Event details' })
+  @IsNotEmpty({ message: 'Event description is required' })
   @IsString()
-  @IsNotEmpty()
+  @MaxLength(2000, { message: 'Description cannot exceed 2000 characters' })
   description!: string;
 
-  @ApiProperty({ example: '2026-10-15T09:00:00Z', description: 'When the event happens' })
-  @IsDateString()
+  // Enforces a strict timestamp format so your frontend and backend timezones don't clash
+  @IsNotEmpty({ message: 'Event date is required' })
+  @IsDateString({}, { message: 'Date must be a valid ISO 8601 string (e.g., 2026-12-01T18:00:00Z)' })
   date!: string;
+
+  @IsNotEmpty({ message: 'Location is required' })
+  @IsString()
+  location!: string;
+
+  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
+  capacity!: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0, { message: 'Price cannot be negative' })
+  price?: number; 
 }
