@@ -32,7 +32,8 @@ export class TicketsService {
   // 1. GENERATION
 
   async generateTicketQrCode(ticketId: string) {
-    const url = `https://api.eventful.com/tickets/verify/${ticketId}`;
+    const apiBaseUrl = process.env.API_BASE_URL || 'http://localhost:3000';
+    const url = `${apiBaseUrl}/tickets/verify/${ticketId}`;
     try {
       const qrCodeDataUrl = await QRCode.toDataURL(url);
       return qrCodeDataUrl;
