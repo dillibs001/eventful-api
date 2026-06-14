@@ -11,4 +11,5 @@ redirectToEvents(@Res() res: Response) {
     // This tells the browser: "The home page is actually at /events"
     return res.redirect('/events');
   }
+  
 }

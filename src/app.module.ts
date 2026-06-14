@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config'; // ConfigService
 import { CacheModule } from '@nestjs/cache-manager';          // Cache
 import { BullModule } from '@nestjs/bullmq';                  // BullMQ
@@ -11,9 +12,8 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
-import { PaystackService } from './modules/paystack/paystack.service';
 import { MailModule } from './modules/mail/mail.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
 
@@ -76,6 +76,13 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // 6. Apply rate limiting globally to every route
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

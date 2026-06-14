@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PaystackService } from './paystack.service';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { InternalServerErrorException } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 
@@ -21,6 +22,7 @@ describe('PaystackService', () => {
       providers: [
         PaystackService,
         { provide: HttpService, useValue: mockHttpService },
+        { provide: ConfigService, useValue: { get: (key: string) => process.env[key] } },
       ],
     }).compile();
 

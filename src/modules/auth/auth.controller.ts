@@ -1,11 +1,10 @@
-import { Body, Controller, Post, UseGuards} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { ThrottlerGuard, Throttle } from '@nestjs/throttler';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
-@UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

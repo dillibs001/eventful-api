@@ -15,6 +15,7 @@ describe('TicketsController', () => {
   const mockTicketsService = {
     verifyTicket: jest.fn(),
     purchaseTicket: jest.fn(),
+    getMyTickets: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -41,7 +42,7 @@ describe('TicketsController', () => {
       // Setup
       const mockTicketId = 'ticket-123';
       const mockReq = {
-        user: { sub: 'creator-456', email: 'creator@test.com', role: 'CREATOR' },
+        user: { userId: 'creator-456', email: 'creator@test.com', role: 'CREATOR' },
       } as any; // Using 'as any' here for the mock req object is standard practice in unit tests
 
       mockTicketsService.verifyTicket.mockResolvedValue({ message: 'Success' });
@@ -60,7 +61,7 @@ describe('TicketsController', () => {
       // Setup
       const createTicketDto: CreateTicketDto = { eventId: 'event-789' };
       const mockReq = {
-        user: { sub: 'user-111', email: 'user@test.com', role: 'EVENTEE' },
+        user: { userId: 'user-111', email: 'user@test.com', role: 'EVENTEE' },
       } as any;
 
       mockTicketsService.purchaseTicket.mockResolvedValue({ message: 'Checkout' });
@@ -70,11 +71,26 @@ describe('TicketsController', () => {
 
       // Assert
       expect(service.purchaseTicket).toHaveBeenCalledWith(
-        'event-789', 
-        'user-111', 
+        'event-789',
+        'user-111',
         'user@test.com'
       );
       expect(result).toEqual({ message: 'Checkout' });
+    });
+  });
+
+  describe('getMyTickets', () => {
+    it('should call ticketsService.getMyTickets with the user id', async () => {
+      const mockReq = {
+        user: { userId: 'user-111', email: 'user@test.com', role: 'EVENTEE' },
+      } as any;
+
+      mockTicketsService.getMyTickets.mockResolvedValue([{ id: 't1' }]);
+
+      const result = await controller.getMyTickets(mockReq);
+
+      expect(service.getMyTickets).toHaveBeenCalledWith('user-111');
+      expect(result).toEqual([{ id: 't1' }]);
     });
   });
 });

@@ -143,3 +143,6 @@ vite.config.ts.timestamp-*
 .vite/
 
 /generated/prisma
+
+# Redis dump file (local persistence)
+dump.rdb
