@@ -3,7 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config'; // ConfigService
 import { CacheModule } from '@nestjs/cache-manager';          // Cache
 import { BullModule } from '@nestjs/bullmq';                  // BullMQ
-import { redisStore } from 'cache-manager-redis-yet';         // Redis Store
+import KeyvRedis from '@keyv/redis';                          // Redis Store
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -30,14 +30,11 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        store: await redisStore({
-          socket: {
-            host: configService.get<string>('REDIS_HOST'),
-            port: configService.get<number>('REDIS_PORT'),
-            // tls: true, // Required for Upstash secure connection
-          },
-          password: configService.get<string>('REDIS_PASSWORD'),
-        }),
+        stores: [
+          new KeyvRedis(
+            `rediss://default:${configService.get<string>('REDIS_PASSWORD')}@${configService.get<string>('REDIS_HOST')}:${configService.get<number>('REDIS_PORT')}`,
+          ),
+        ],
       }),
     }),
 
@@ -50,9 +47,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
           password: configService.get<string>('REDIS_PASSWORD'),
-        //   tls: {rejectUnauthorized: false}, // Required for Upstash secure connection
-        // },
-        // family: 4,
+          tls: { rejectUnauthorized: false }, // Required for Upstash secure connection
         },
       }),
     }),
@@ -72,6 +67,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
         host: process.env.REDIS_HOST, // Your Redis URL
         port: Number(process.env.REDIS_PORT),
         password: process.env.REDIS_PASSWORD,
+        tls: { rejectUnauthorized: false }, // Required for Upstash secure connection
       }),
     }),
   ],
