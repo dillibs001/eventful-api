@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config'; // ConfigService
 import { CacheModule } from '@nestjs/cache-manager';          // Cache
 import { BullModule } from '@nestjs/bullmq';                  // BullMQ
-import { redisStore } from 'cache-manager-redis-yet';         // Redis Store
+import KeyvRedis from '@keyv/redis';                          // Redis Store
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -11,10 +12,9 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EventsModule } from './modules/events/events.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
-import { PaystackService } from './modules/paystack/paystack.service';
 import { MailModule } from './modules/mail/mail.module';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ResilientThrottlerStorage } from './resilient-throttler.storage';
 
 
 @Module({
@@ -30,14 +30,11 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        store: await redisStore({
-          socket: {
-            host: configService.get<string>('REDIS_HOST'),
-            port: configService.get<number>('REDIS_PORT'),
-            // tls: true, // Required for Upstash secure connection
-          },
-          password: configService.get<string>('REDIS_PASSWORD'),
-        }),
+        stores: [
+          new KeyvRedis(
+            `rediss://default:${configService.get<string>('REDIS_PASSWORD')}@${configService.get<string>('REDIS_HOST')}:${configService.get<number>('REDIS_PORT')}`,
+          ),
+        ],
       }),
     }),
 
@@ -50,9 +47,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
           host: configService.get<string>('REDIS_HOST'),
           port: configService.get<number>('REDIS_PORT'),
           password: configService.get<string>('REDIS_PASSWORD'),
-        //   tls: {rejectUnauthorized: false}, // Required for Upstash secure connection
-        // },
-        // family: 4,
+          tls: { rejectUnauthorized: false }, // Required for Upstash secure connection
         },
       }),
     }),
@@ -68,14 +63,22 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
     // 5. Global Rate Limiting Configuration (Upstash Redis)
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'short', ttl: 60000, limit: 10 }],
-      storage: new ThrottlerStorageRedisService({
+      storage: new ResilientThrottlerStorage({
         host: process.env.REDIS_HOST, // Your Redis URL
         port: Number(process.env.REDIS_PORT),
         password: process.env.REDIS_PASSWORD,
+        tls: { rejectUnauthorized: false }, // Required for Upstash secure connection
       }),
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // 6. Apply rate limiting globally to every route
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@keyv/redis": "^5.1.6",
     "@nest-lab/throttler-storage-redis": "^1.2.0",
     "@nestjs-modules/mailer": "^2.3.6",
     "@nestjs/axios": "^4.0.1",
@@ -38,7 +39,6 @@
     "bcrypt": "^6.0.0",
     "bullmq": "^5.78.0",
     "cache-manager": "^7.2.8",
-    "cache-manager-redis-yet": "^5.1.5",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "handlebars": "^4.7.9",
@@ -85,11 +85,11 @@
   },
   "jest": {
     "moduleNameMapper": {
-    "^uuid$": "uuid",
-    "transformIgnorePatterns": [
-    "/node_modules/(?!uuid)/" 
-  ]
-  },
+      "^uuid$": "uuid",
+      "transformIgnorePatterns": [
+        "/node_modules/(?!uuid)/"
+      ]
+    },
     "moduleFileExtensions": [
       "js",
       "json",

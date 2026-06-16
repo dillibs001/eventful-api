@@ -38,6 +38,7 @@ model User {
   events       Event[] // Events this user has created
   tickets      Ticket[] // Tickets this user has purchased
   transactions Transaction[]
+  reminders    Reminder[] // Custom reminders this user has set for events
 }
 
 // 2. Events Table
@@ -51,11 +52,15 @@ model Event {
   price       Int      @default(0)
   createdAt   DateTime @default(now())
 
+  // Minutes before the event start time to send a reminder (creator-configured), e.g. [1440, 10080] for 1 day and 1 week
+  reminderOffsets Int[] @default([])
+
   // Relationships
   creatorId    String
   creator      User          @relation(fields: [creatorId], references: [id])
   tickets      Ticket[]
   transactions Transaction[] // <-- NEW: Tracks revenue attempts for this event
+  reminders    Reminder[] // Custom reminders eventees have set for this event
 }
 
 // 3. Tickets Table
@@ -90,4 +95,19 @@ model Transaction {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// 5. Reminders Table - custom, eventee-set reminders for events they're attending
+model Reminder {
+  id            String   @id @default(uuid())
+  offsetMinutes Int // How many minutes before the event start to send this reminder
+  createdAt     DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId, offsetMinutes])
 }

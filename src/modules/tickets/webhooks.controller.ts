@@ -1,9 +1,11 @@
 import { Controller, Post, Req, Res, Headers, HttpStatus } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import * as crypto from 'crypto';
+import { ApiTags, ApiExcludeController } from '@nestjs/swagger';
 import { TicketsService } from './tickets.service';
 
-
+@ApiTags('Webhooks')
+@ApiExcludeController() // Internal Paystack webhook receiver - not part of the public API surface
 @Controller('webhooks')
 export class WebhooksController {
   constructor(private readonly ticketsService: TicketsService) {}

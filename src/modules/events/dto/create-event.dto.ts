@@ -1,13 +1,15 @@
-import { 
-  IsNotEmpty, 
-  IsString, 
-  IsInt, 
-  Min, 
-  IsNumber, 
-  IsOptional, 
-  MaxLength, 
-  IsDateString 
+import {
+  IsNotEmpty,
+  IsString,
+  IsInt,
+  Min,
+  IsNumber,
+  IsOptional,
+  MaxLength,
+  IsDateString,
+  IsArray,
 } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateEventDto {
   @IsNotEmpty({ message: 'Event title is required' })
@@ -37,5 +39,17 @@ export class CreateEventDto {
   @IsOptional()
   @IsNumber()
   @Min(0, { message: 'Price cannot be negative' })
-  price?: number; 
+  price?: number;
+
+  @ApiPropertyOptional({
+    description:
+      'How many minutes before the event starts to send a reminder to attendees, e.g. [1440, 10080] for "1 day before" and "1 week before"',
+    example: [1440, 10080],
+    type: [Number],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @Min(1, { each: true })
+  reminderOffsets?: number[];
 }

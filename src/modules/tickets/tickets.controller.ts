@@ -1,4 +1,4 @@
-import { Controller, Post, Param, Req, UseGuards, Body } from '@nestjs/common';
+import { Controller, Post, Get, Param, Req, UseGuards, Body } from '@nestjs/common';
 import { TicketsService } from './tickets.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guards';
@@ -54,8 +54,16 @@ export class TicketsController {
     @Body() createTicketDto: CreateTicketDto,
     @Req() req: AuthenticatedRequest,
   ) {
-    const attendeeId = req.user.userId; 
+    const attendeeId = req.user.userId;
     const attendeeEmail = req.user.email;
     return this.ticketsService.purchaseTicket(createTicketDto.eventId, attendeeId, attendeeEmail);
+  }
+
+  @Get('mine')
+  @Roles(Role.EVENTEE)
+  @ApiOperation({ summary: 'View all events/tickets you have registered for (Eventees Only)' })
+  @ApiResponse({ status: 200, description: 'List of tickets with their event details.' })
+  getMyTickets(@Req() req: AuthenticatedRequest) {
+    return this.ticketsService.getMyTickets(req.user.userId);
   }
 }
