@@ -165,6 +165,10 @@ export class TicketsService {
       return { message: 'Free ticket claimed successfully!', ticket: result.ticket, qrCode };
     }
 
+    // Define where Paystack should redirect the user after payment
+    const frontendBaseUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const callbackUrl = `${frontendBaseUrl}/tickets/verify?reference=${result.transactionReference}`;
+
     // Ask Paystack for the checkout link (outside the DB transaction)
     const authorizationUrl = await this.paystackService.initializePayment(
       userEmail,
@@ -172,6 +176,7 @@ export class TicketsService {
       result.transactionReference,
       eventId,
       userId,
+      callbackUrl,
     );
 
     return {

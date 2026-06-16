@@ -46,7 +46,7 @@ describe('PaystackService', () => {
 
       mockHttpService.post.mockReturnValue(of(mockResponse));
 
-      const result = await service.initializePayment('user@test.com', 5000, 'ref123', 'event1', 'user1');
+      const result = await service.initializePayment('user@test.com', 5000, 'ref123', 'event1', 'user1', 'http://callback.url');
 
       expect(result).toBe('https://checkout.paystack.com/123');
       expect(httpService.post).toHaveBeenCalled();
@@ -63,7 +63,7 @@ describe('PaystackService', () => {
 
       mockHttpService.post.mockReturnValue(of(mockResponse));
 
-      await expect(service.initializePayment('user@test.com', -100, 'ref123', 'event1', 'user1'))
+      await expect(service.initializePayment('user@test.com', -100, 'ref123', 'event1', 'user1', 'http://callback.url'))
         .rejects
         .toThrow(InternalServerErrorException);
     });
@@ -74,7 +74,7 @@ describe('PaystackService', () => {
         throwError(() => ({ response: { data: 'Network Error' } }))
       );
 
-      await expect(service.initializePayment('user@test.com', 5000, 'ref123', 'event1', 'user1'))
+      await expect(service.initializePayment('user@test.com', 5000, 'ref123', 'event1', 'user1', 'http://callback.url'))
         .rejects
         .toThrow(InternalServerErrorException);
     });
