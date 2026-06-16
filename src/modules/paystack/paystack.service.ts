@@ -16,10 +16,11 @@ export class PaystackService {
 
   async initializePayment(
     email: string, 
-    amount: number, 
+    amount: number,
     reference: string, 
     eventId: string, 
-    userId: string
+    userId: string,
+    callbackUrl: string
   ): Promise<string> {
     const secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY');
     
@@ -30,6 +31,7 @@ export class PaystackService {
             email,
             amount:amount * 100, // Paystack expects amount in kobo (cents)
             reference,
+            callback_url: callbackUrl,
             metadata: {
               eventId,
               userId,
