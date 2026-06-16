@@ -14,7 +14,7 @@ import { EventsModule } from './modules/events/events.module';
 import { TicketsModule } from './modules/tickets/tickets.module';
 import { MailModule } from './modules/mail/mail.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { ResilientThrottlerStorage } from './resilient-throttler.storage';
 
 
 @Module({
@@ -63,7 +63,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
     // 5. Global Rate Limiting Configuration (Upstash Redis)
     ThrottlerModule.forRoot({
       throttlers: [{ name: 'short', ttl: 60000, limit: 10 }],
-      storage: new ThrottlerStorageRedisService({
+      storage: new ResilientThrottlerStorage({
         host: process.env.REDIS_HOST, // Your Redis URL
         port: Number(process.env.REDIS_PORT),
         password: process.env.REDIS_PASSWORD,
