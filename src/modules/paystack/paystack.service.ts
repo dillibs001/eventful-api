@@ -4,6 +4,8 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
+const PAYSTACK_API_URL = 'https://api.paystack.co/transaction/initialize';
+
 @Injectable()
 export class PaystackService {
   constructor(
@@ -20,11 +22,10 @@ export class PaystackService {
     userId: string
   ): Promise<string> {
     const secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY');
-    const url = 'https://api.paystack.co/transaction/initialize';
     
     try {
       const { data } = await firstValueFrom(
-        this.httpService.post(url,
+        this.httpService.post(PAYSTACK_API_URL,
           {
             email,
             amount:amount * 100, // Paystack expects amount in kobo (cents)
