@@ -175,7 +175,7 @@ export class EventsService {
     const event = await this.getEventById(eventId);
     const { title, description, id } = event as { id: string; title: string; description: string };
 
-    const baseUrl = process.env.FRONTEND_URL || 'https://eventful-frontend-mu.vercel.app';
+    const baseUrl = process.env.FRONTEND_URL ?? 'http://localhost:3001';
     const eventUrl = `${baseUrl}/events/${id}`;
     const shareText = `${title} - ${description}`.slice(0, 200);
 
