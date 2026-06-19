@@ -4,12 +4,12 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { rawBody: true });
   
   const allowedOrigins = (process.env.FRONTEND_URL ?? 'http://localhost:3001').split(',');
   app.enableCors({
     origin: allowedOrigins,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,UPDATE,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
 
