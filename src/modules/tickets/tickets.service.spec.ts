@@ -165,7 +165,7 @@ describe('TicketsService', () => {
         'TKT-mock-uuid-1234',
         'e1',
         'u1',
-        'http://localhost:3000/tickets/verify?reference=TKT-mock-uuid-1234',
+        'https://eventful-frontend-mu.vercel.app/payment/success',
       );
       expect(result.authorization_url).toBe('https://checkout.paystack.com/abc');
       expect(mockMailService.sendTicketConfirmation).not.toHaveBeenCalled();
